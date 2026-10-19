@@ -217,7 +217,11 @@ def fmt_pct(value, decimals: int = 0) -> str:
 
 
 def parse_amount(text) -> float | None:
-    """Accepte « 1 234,56 », « 1234.56 », « -50 € », « (12,5) »."""
+    """Lit un montant saisi à la française ou à l'anglaise.
+
+    Acceptés : « 1 234,56 », « 1.234,56 », « 1234.56 », « 1 234 », « -50 € »,
+    « (12,5) », « 1500,5 », « 1 234,56 € ».
+    """
     if text is None:
         return None
     if isinstance(text, (int, float)):
@@ -225,16 +229,38 @@ def parse_amount(text) -> float | None:
     t = str(text).strip()
     if not t:
         return None
+
     neg = False
     if t.startswith("(") and t.endswith(")"):
         neg, t = True, t[1:-1]
-    for junk in ("€", "$", "£", "CHF", "MAD", "DZD", "TND", "USD", "EUR", NNBSP, "\u00a0", " ", "\t", "'"):
+
+    for junk in ("€", "$", "£", "CHF", "MAD", "DZD", "TND", "USD", "EUR",
+                 NNBSP, "\u00a0", "\u2009", " ", "\t", "'", "\u2019"):
         t = t.replace(junk, "")
-    t = t.replace(",", ".")
-    if t.startswith("−"):
-        neg, t = True, t[1:]
+    t = t.replace("−", "-")
     if t.startswith("-"):
         neg, t = True, t[1:]
+    if not t:
+        return None
+
+    if "," in t:
+        # La virgule est le séparateur décimal : les points sont des milliers.
+        if t.count(",") > 1:
+            return None
+        t = t.replace(".", "").replace(",", ".")
+    else:
+        dots = t.count(".")
+        if dots > 1:
+            # Plusieurs points sans virgule : séparateurs de milliers.
+            t = t.replace(".", "")
+        elif dots == 1:
+            head, _, tail = t.partition(".")
+            if len(tail) == 3 and len(head) <= 3 and head.isdigit():
+                # « 1.500 » -> 1500 (milliers), « 12.345 » -> 12345
+                t = head + tail
+
+    if not t or not any(ch.isdigit() for ch in t):
+        return None
     try:
         v = float(t)
     except ValueError:

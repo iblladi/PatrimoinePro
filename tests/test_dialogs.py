@@ -58,6 +58,34 @@ def main():
               str(created[0]["type"] if created else None))
         dlg.destroy()
 
+        print("· montant initial : formats acceptés")
+        for text, expected in (("1.500,50", 1500.5), ("1500,50", 1500.5),
+                               ("1 500,50", 1500.5), ("1500.50", 1500.5),
+                               ("2 000", 2000.0)):
+            dlg = dialogs.AccountDialog(root)
+            dlg.var_name.set("Test format")
+            dlg.var_balance.set(text)
+            ok = dlg.validate()
+            value = dlg.values()["initial_balance"]
+            check(f"solde « {text} »", ok and abs(value - expected) < 0.01,
+                  f"ok={ok} value={value}")
+            dlg.destroy()
+
+        print("· message d'erreur visible")
+        dlg = dialogs.AccountDialog(root)
+        dlg.center()
+        dlg.deiconify()
+        for _ in range(4):
+            root.update()
+        required_before = dlg.winfo_reqheight()
+        dlg.show_error("Message d'erreur de test")
+        for _ in range(4):
+            root.update()
+        check("la fenêtre s'agrandit", dlg.winfo_reqheight() > required_before,
+              f"{required_before} -> {dlg.winfo_reqheight()}")
+        check("message affiché", dlg._error_var.get() == "Message d'erreur de test")
+        dlg.destroy()
+
         print("· catalogue des types de comptes")
         dlg = dialogs.AccountDialog(root)
         check("famille initiale", dlg.var_family.get() == "Comptes courants",

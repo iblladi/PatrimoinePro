@@ -2,6 +2,16 @@
 
 Toutes les dates sont au format AAAA-MM-JJ.
 
+## 1.1.1 — 2026-10-20
+
+### Corrigé
+- **Montants au format français** : « 1.500,50 » (point de milliers) est désormais accepté,
+  comme « 1 500,50 », « 1500,50 » ou « 1500.50 ». Les séparateurs de milliers multiples
+  (« 1.234.567,89 ») sont également gérés.
+- **Messages de validation visibles** : la fenêtre s'agrandit pour afficher l'erreur au lieu
+  de la laisser hors écran (impression que « rien ne se passe »). Un montant non reconnu
+  colore le champ en rouge pendant la saisie.
+
 ## 1.1.0 — 2026-10-20
 
 ### Ajouté

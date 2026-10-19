@@ -50,6 +50,16 @@ class Form:
         e.pack(side="left", fill="x", expand=True, ipady=S(6), padx=(S(8), S(4)))
         tk.Label(box, text=suffix, font=theme.F_SMALL, fg=MUTED, bg=SURFACE).pack(
             side="right", padx=(0, S(10)))
+
+        def check(_event=None):
+            text = var.get().strip()
+            valid = (not text) or utils.parse_amount(text) is not None
+            color = BORDER if valid else theme.RED
+            box.configure(highlightbackground=color, highlightcolor=color)
+
+        var.trace_add("write", lambda *_: check())
+        e.bind("<FocusOut>", check)
+        check()
         return e
 
     def combo(self, label, var, values, row, col=1, span=1, width=None):
@@ -131,8 +141,8 @@ class AccountDialog(widgets.Modal):
         self._fill_types()
         self.c_type.bind("<<ComboboxSelected>>", lambda e: self._sync_color())
 
-        hint = ("Le solde initial correspond au montant présent sur le compte avant la "
-                "première opération enregistrée. Laissez vide pour démarrer à zéro.")
+        hint = ("Solde du compte avant la première opération enregistrée, par exemple "
+                "1 500,50. Laissez vide pour démarrer à zéro.")
         widgets.lbl(self.body, hint, theme.F_SMALL, FAINT, BG, wraplength=S(540),
                     justify="left").pack(anchor="w", pady=(S(4), S(6)))
         self.color_field = f.color("Couleur", account["color"] if account else PRIMARY, 3, 0, 2)

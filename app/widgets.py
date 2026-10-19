@@ -1037,9 +1037,24 @@ class Modal(tk.Toplevel):
         return l
 
     def show_error(self, message):
+        """Affiche l'erreur en bas du formulaire et agrandit la fenêtre si besoin,
+        pour que le message soit toujours visible."""
         self._error_var.set(message)
         if not self.error_label.winfo_ismapped():
             self.error_label.pack(fill="x", pady=(S(10), 0))
+        self.update_idletasks()
+        try:
+            need = self.winfo_reqheight()
+            current = self.winfo_height()
+            if need > current + 1:
+                width = max(self.winfo_width(), max(self.winfo_reqwidth(), S(self._width)))
+                x, y = self.winfo_x(), self.winfo_y()
+                screen_h = self.winfo_screenheight()
+                if y + need > screen_h - S(20):
+                    y = max(0, screen_h - need - S(20))
+                self.geometry(f"{width}x{need}+{x}+{y}")
+        except Exception:
+            pass
 
     def clear_error(self):
         self._error_var.set("")
