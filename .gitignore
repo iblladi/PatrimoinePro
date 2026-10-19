@@ -1,0 +1,25 @@
+# --- Python -------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# --- Compilation / distribution ------------------------------------------
+.build/
+build/
+dist/
+*.spec
+PatrimoinePro.exe
+_internal/
+
+# --- Données locales et tests --------------------------------------------
+.tmp/
+*.db
+*.db-wal
+*.db-shm
+
+# --- Système --------------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store

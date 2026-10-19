@@ -1,0 +1,3 @@
+# Dépendances uniquement nécessaires pour compiler l'exécutable Windows.
+# L'application elle-même n'utilise que la bibliothèque standard Python.
+pyinstaller>=6.16
