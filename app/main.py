@@ -325,40 +325,38 @@ class App(tk.Tk):
     def new_transaction(self, preset_account=None):
         dlg = dialogs.TransactionDialog(self, self.db, preset_account=preset_account)
         if dlg.show():
-            self.notify(dlg.apply())
+            self.notify(dlg.payload)
 
     def edit_transaction(self, row):
         dlg = dialogs.TransactionDialog(self, self.db, transaction=row)
         if dlg.show():
-            self.notify(dlg.apply())
+            self.notify(dlg.payload)
 
     def new_account(self):
         dlg = dialogs.AccountDialog(self)
-        if dlg.show():
-            self.db.add_account(**dlg.values())
+        if dlg.show() and dlg.payload:
+            self.db.add_account(**dlg.payload)
             self.notify("Compte ajouté")
             self.navigate("accounts")
 
     def edit_account(self, account):
         dlg = dialogs.AccountDialog(self, account=account)
-        if dlg.show():
-            self.db.update_account(account["id"], **dlg.values())
+        if dlg.show() and dlg.payload:
+            self.db.update_account(account["id"], **dlg.payload)
             self.notify("Compte mis à jour")
             self.refresh()
 
     def new_project(self):
         dlg = dialogs.ProjectDialog(self, self.db)
-        if dlg.show():
-            data = dlg.data()
-            initial = utils.parse_amount(dlg.var_initial.get() or 0) or 0.0
-            self.db.add_project(initial_amount=initial, **data)
+        if dlg.show() and dlg.payload:
+            self.db.add_project(**dlg.payload)
             self.notify("Projet créé")
             self.navigate("projects")
 
     def edit_project(self, project):
         dlg = dialogs.ProjectDialog(self, self.db, project=project)
-        if dlg.show():
-            self.db.update_project(project["id"], **dlg.data())
+        if dlg.show() and dlg.payload:
+            self.db.update_project(project["id"], **dlg.payload)
             self.notify("Projet mis à jour")
             self.refresh()
 

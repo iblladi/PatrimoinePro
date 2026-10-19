@@ -86,6 +86,46 @@ def main():
         check("message affiché", dlg._error_var.get() == "Message d'erreur de test")
         dlg.destroy()
 
+        print("· fermeture : les valeurs survivent à la destruction")
+        dlg = dialogs.AccountDialog(root)
+        dlg.var_name.set("Compte via OK")
+        dlg.var_balance.set("2.500,75")
+        dlg.note.insert("1.0", "Note de test")
+        dlg.ok()
+        check("fenêtre détruite", not dlg.winfo_exists())
+        check("payload conservé", bool(dlg.payload) and dlg.payload["name"] == "Compte via OK",
+              str(dlg.payload))
+        check("montant conservé",
+              bool(dlg.payload) and abs(dlg.payload["initial_balance"] - 2500.75) < 0.01,
+              str(dlg.payload))
+        check("notes conservées", bool(dlg.payload) and dlg.payload["notes"] == "Note de test",
+              str(dlg.payload.get("notes") if dlg.payload else None))
+        db.add_account(**dlg.payload)
+
+        dlg = dialogs.ProjectDialog(root, db)
+        dlg.var_name.set("Projet via OK")
+        dlg.var_target.set("5 000")
+        dlg.var_initial.set("250")
+        dlg.ok()
+        check("payload projet", bool(dlg.payload) and dlg.payload["name"] == "Projet via OK",
+              str(dlg.payload))
+        check("épargne initiale transmise",
+              bool(dlg.payload) and abs(dlg.payload.get("initial_amount", -1) - 250) < 0.01,
+              str(dlg.payload))
+        pid_ok = db.add_project(**dlg.payload)
+        project_ok = db.get_project(pid_ok)
+        check("projet créé avec épargne",
+              abs(float(project_ok["saved"]) - 250) < 0.01, str(project_ok["saved"]))
+
+        dlg = dialogs.ContributionDialog(root, db, project_ok)
+        dlg.var_amount.set("100")
+        dlg.ok()
+        check("versement appliqué", bool(dlg.payload) and "Versement" in dlg.payload,
+              str(dlg.payload))
+        check("versement en base",
+              abs(float(db.get_project(pid_ok)["saved"]) - 350) < 0.01,
+              str(db.get_project(pid_ok)["saved"]))
+
         print("· catalogue des types de comptes")
         dlg = dialogs.AccountDialog(root)
         check("famille initiale", dlg.var_family.get() == "Comptes courants",

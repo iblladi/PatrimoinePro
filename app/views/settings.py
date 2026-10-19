@@ -218,8 +218,8 @@ class SettingsView(ScrollView):
 
     def _add_category(self):
         dlg = dialogs.CategoryDialog(self)
-        if dlg.show():
-            data = dlg.values()
+        if dlg.show() and dlg.payload:
+            data = dlg.payload
             try:
                 self.db.add_category(data["name"], data["kind"], data["color"])
                 self.app.notify("Catégorie ajoutée")
@@ -229,8 +229,8 @@ class SettingsView(ScrollView):
 
     def _edit_category(self, cat):
         dlg = dialogs.CategoryDialog(self, category=cat)
-        if dlg.show():
-            data = dlg.values()
+        if dlg.show() and dlg.payload:
+            data = dlg.payload
             try:
                 self.db.update_category(cat["id"], data["name"], data["color"])
                 self.app.notify("Catégorie modifiée")

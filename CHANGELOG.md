@@ -5,6 +5,12 @@ Toutes les dates sont au format AAAA-MM-JJ.
 ## 1.1.1 — 2026-10-20
 
 ### Corrigé
+- **Erreur « invalid command name » après l'enregistrement** d'un compte, d'un projet ou
+  d'un versement : les formulaires lisaient leurs champs après la destruction de la fenêtre.
+  Les valeurs sont désormais collectées avant fermeture (`payload`) et transmises à
+  l'application. Cela concernait aussi l'édition d'un compte et d'un projet.
+- **Formulaire « Verser » impossible à ouvrir** sur un projet sans versement mensuel
+  (conversion d'un montant vide).
 - **Montants au format français** : « 1.500,50 » (point de milliers) est désormais accepté,
   comme « 1 500,50 », « 1500,50 » ou « 1500.50 ». Les séparateurs de milliers multiples
   (« 1.234.567,89 ») sont également gérés.

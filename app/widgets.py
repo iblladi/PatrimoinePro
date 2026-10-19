@@ -968,6 +968,7 @@ class Modal(tk.Toplevel):
         self.resizable(False, False)
         self.transient(master.winfo_toplevel())
         self.result = None
+        self.payload = None
         self._ok_label = ok_label
         self._on_submit = None
         self._error_var = tk.StringVar()
@@ -1083,11 +1084,27 @@ class Modal(tk.Toplevel):
     def validate(self) -> bool:
         return True
 
+    def collect(self):
+        """Données à conserver après la fermeture.
+
+        Appelée par `ok()` **avant** la destruction de la fenêtre : les champs
+        (Entry, Text, combos…) sont encore vivants. Les sous-classes retournent
+        ici leurs valeurs ; elles sont disponibles ensuite dans `self.payload`.
+        """
+        return None
+
     def ok(self):
         self.clear_error()
-        if self.validate():
-            self.result = True
-            self.destroy()
+        if not self.validate():
+            return
+        try:
+            data = self.collect()
+        except Exception as exc:  # écriture en base impossible, etc.
+            self.show_error(f"Enregistrement impossible : {exc}")
+            return
+        self.payload = data
+        self.result = True
+        self.destroy()
 
     def cancel(self):
         self.result = None

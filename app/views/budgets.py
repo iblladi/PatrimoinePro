@@ -186,8 +186,7 @@ class BudgetsView(ScrollView):
                     current = float(r["amount"])
         dlg = dialogs.BudgetDialog(self, self.db, month_key, category=category, current=current)
         if dlg.show():
-            message = dlg.apply()
-            self.app.notify(message)
+            self.app.notify(dlg.payload)
             self.rebuild()
 
     def _edit(self, item):

@@ -106,9 +106,14 @@ class Form:
 
 
 def money_text(value) -> str:
-    if value is None:
+    """Formate un nombre pour un champ de saisie (« 1 234,56 »)."""
+    if value is None or value == "":
         return ""
-    return f"{float(value):,.2f}".replace(",", " ").replace(".", ",").replace("\u202f", " ")
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return ""
+    return f"{number:,.2f}".replace(",", " ").replace(".", ",").replace("\u202f", " ")
 
 
 # --------------------------------------------------------------------------
@@ -185,6 +190,9 @@ class AccountDialog(widgets.Modal):
             "color": self.color_field.get(),
             "notes": self.note.get("1.0", "end").strip(),
         }
+
+    def collect(self):
+        return self.values()
 
 
 # --------------------------------------------------------------------------
@@ -354,6 +362,9 @@ class TransactionDialog(widgets.Modal):
             db.add_transaction(date, acc["id"], signed, category_id, payee)
         return f"{kind} de {utils.fmt_money(amount)} enregistrée"
 
+    def collect(self):
+        return self.apply()
+
 
 # --------------------------------------------------------------------------
 # Projet d'épargne
@@ -442,6 +453,12 @@ class ProjectDialog(widgets.Modal):
             "notes": self.note.get("1.0", "end").strip(),
         }
 
+    def collect(self):
+        data = self.data()
+        if self.project is None and hasattr(self, "var_initial"):
+            data["initial_amount"] = utils.parse_amount(self.var_initial.get() or 0) or 0.0
+        return data
+
 
 # --------------------------------------------------------------------------
 # Versement sur un projet
@@ -459,8 +476,10 @@ class ContributionDialog(widgets.Modal):
         self.acc_names = ["Aucun (simple affectation)"] + [a["name"] for a in accounts]
         self.acc_by_name = {a["name"]: a for a in accounts}
 
-        self.var_amount = tk.StringVar(value=money_text(project["monthly_contribution"]
-                                                        if project["monthly_contribution"] else ""))
+        self.var_amount = tk.StringVar(
+            value=money_text(project["monthly_contribution"])
+            if project["monthly_contribution"] else ""
+        )
         self.var_source = tk.StringVar(value="Aucun (simple affectation)")
 
         f = Form(self.body)
@@ -497,6 +516,9 @@ class ContributionDialog(widgets.Modal):
             source_account_id=source["id"] if source else None,
         )
         return f"Versement de {utils.fmt_money(amount)} enregistré"
+
+    def collect(self):
+        return self.apply()
 
 
 # --------------------------------------------------------------------------
@@ -544,6 +566,9 @@ class BudgetDialog(widgets.Modal):
         self.db.set_budget(cat["id"], self.month, amount)
         return f"Budget {cat['name']} : {utils.fmt_money(amount)}"
 
+    def collect(self):
+        return self.apply()
+
 
 # --------------------------------------------------------------------------
 # Catégorie
@@ -579,3 +604,6 @@ class CategoryDialog(widgets.Modal):
             "kind": "depense" if self.var_kind.get() == "Dépense" else "revenu",
             "color": self.color_field.get(),
         }
+
+    def collect(self):
+        return self.values()

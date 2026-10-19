@@ -184,8 +184,7 @@ class ProjectsView(ScrollView):
     def _add_contribution(self, p):
         dlg = dialogs.ContributionDialog(self, self.db, p)
         if dlg.show():
-            message = dlg.apply()
-            self.app.notify(message)
+            self.app.notify(dlg.payload)
             self.rebuild()
 
     def _details(self, p):
@@ -323,8 +322,7 @@ class ProjectDetailDialog(widgets.Modal):
         p = self.db.get_project(self.project_id)
         dlg = dialogs.ContributionDialog(self, self.db, p)
         if dlg.show():
-            message = dlg.apply()
-            self.app.notify(message)
+            self.app.notify(dlg.payload)
             self._build_content()
             self.center()
 
