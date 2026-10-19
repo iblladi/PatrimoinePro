@@ -23,5 +23,9 @@ _internal/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# --- Éditeurs (configuration locale) --------------------------------------
+# .vscode/ reste volontairement ignoré ; .github/ doit être versionné
+# (workflow de compilation de l'exécutable Windows).
 .vscode/
-.github/
+.idea/
